@@ -5,39 +5,49 @@ import DatePicker from 'react-date-picker';
 import 'react-calendar/dist/Calendar.css'
 import 'react-date-picker/dist/DatePicker.css'
 import ErrorMessage from "./ErrorMessage";
+import { useBudget } from "../hooks/useBudget";
 
 export default function ExpenseForm() {
     const [expense, setExpense] = useState<DraftExpense>({
-        amount : 0,
-        expenseName : '',
-        category : '',
-        date : new Date()
+        amount: 0,
+        expenseName: '',
+        category: '',
+        date: new Date()
     })
     const [error, setError] = useState('')
+    const { dispatch } = useBudget()
 
-    const handleOnChange = (e : ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) =>{
-        const {name, value} = e.target
+    const handleOnChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+        const { name, value } = e.target
         const isAmountField = ['amount'].includes(name)
 
-        setExpense ({
+        setExpense({
             ...expense,
-            [name] : isAmountField ? +value : value
+            [name]: isAmountField ? +value : value
         })
     }
 
-    const handleOnChangeDate = (value : Value) => {
+    const handleOnChangeDate = (value: Value) => {
         setExpense({
-            ...expense, 
-            date : value})
+            ...expense,
+            date: value
+        })
     }
 
-    const handleOnSubmit = (e : FormEvent<HTMLFormElement>)=>{
+    const handleOnSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        if(Object.values(expense).includes('')){
+        if (Object.values(expense).includes('')) {
             setError('Todos los campos son obligatorios')
             return
         }
+        dispatch({ type: 'add-expense', payload: { expense } })
+        setExpense({
+            amount: 0,
+            expenseName: '',
+            category: '',
+            date: new Date()
+        })
     }
     return (
         <form className="space-y-5" onSubmit={handleOnSubmit}>
